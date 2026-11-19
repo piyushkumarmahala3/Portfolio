@@ -183,17 +183,26 @@
       background: linear-gradient(180deg,#fff 0%,#f8fbff 55%,#c7d4e0 100%);
       box-shadow: 0 4px 9px rgba(0,38,82,.22), inset 0 1px 2px #fff;
     }
+    .wrist-bridge, .wrist-socket {
+      position: absolute; background: linear-gradient(180deg,#fff 0%,#f5f8fb 58%,#b7c6d5 100%);
+      border: 1px solid rgba(144,165,188,.65); box-shadow: 0 2px 6px rgba(0,37,78,.24), inset 0 1px 2px #fff;
+      transform: rotateX(var(--grip-pitch)) rotateY(var(--grip-yaw)) translateZ(var(--finger-z));
+    }
+    .wrist-bridge { top: calc(77px + var(--drop)); left: -52px; width: 104px; height: 14px; border-radius: 7px; }
+    .wrist-socket { top: calc(74px + var(--drop)); left: -17px; width: 34px; height: 22px; border-radius: 8px; }
     .finger {
-      position: absolute; top: calc(85px + var(--drop)); width: var(--finger-w); height: var(--finger-h);
+      position: absolute; top: calc(82px + var(--drop)); width: var(--finger-w); height: var(--finger-h);
       transition: width .42s var(--ease-crane), height .42s var(--ease-crane), transform .38s var(--ease-spring); transform-origin: center 4px;
     }
     .finger-left, .finger-right { transform: rotateX(var(--grip-pitch)) rotateY(var(--grip-yaw)) translateZ(var(--finger-z)); }
     .finger::before, .finger::after { content: ""; position: absolute; background: linear-gradient(180deg,#fff 0%,#f5f8fb 60%,#b7c6d5 100%); box-shadow: 0 2px 5px rgba(0,37,78,.2); }
     .finger::before { top: 0; width: 100%; height: 8px; border-radius: 5px; }
     .finger::after { top: 0; width: 8px; height: var(--finger-h); border-radius: 5px; }
-    .finger-left { right: 0; }
+    .finger-left { right: 0; transform-origin: right 4px; }
+    .finger-left::before { right: -6px; width: calc(100% + 6px); }
     .finger-left::after { left: 0; }
-    .finger-right { left: 0; }
+    .finger-right { left: 0; transform-origin: left 4px; }
+    .finger-right::before { left: -6px; width: calc(100% + 6px); }
     .finger-right::after { right: 0; }
     .crane.fingers-open .finger-left { transform: rotateX(var(--grip-pitch)) rotateY(var(--grip-yaw)) translateZ(var(--finger-z)) rotateZ(-16deg); }
     .crane.fingers-open .finger-right { transform: rotateX(var(--grip-pitch)) rotateY(var(--grip-yaw)) translateZ(var(--finger-z)) rotateZ(16deg); }
@@ -414,6 +423,7 @@
         <div class="hoist">
           <div class="crane-hardware" aria-hidden="true">
             <div class="rod"></div><div class="grip-head"></div>
+            <span class="wrist-bridge"></span><span class="wrist-socket"></span>
             <span class="finger finger-left"></span><span class="finger finger-right"></span>
           </div>
           <div class="crane-load" id="craneLoad"></div>
@@ -537,11 +547,13 @@
 
       function setGrip(size, yawDegrees = 0, pitchDegrees = 0) {
         const yaw = Math.abs(yawDegrees) * Math.PI / 180;
+        const pitch = Math.abs(pitchDegrees) * Math.PI / 180;
         const projectedSpan = size.w * Math.cos(yaw) + size.d * Math.sin(yaw);
         crane.style.setProperty('--grip-span', px(projectedSpan * 1.12));
         crane.style.setProperty('--finger-w', px(projectedSpan * .56));
         crane.style.setProperty('--finger-h', px(12 + size.h * .9));
-        crane.style.setProperty('--finger-z', px(size.d / 2 + 9));
+        const cornerClearance = Math.sin(yaw) * size.w / 2 + Math.sin(pitch) * size.h / 2;
+        crane.style.setProperty('--finger-z', px(size.d / 2 + cornerClearance + 12));
         crane.style.setProperty('--grip-yaw', `${yawDegrees}deg`);
         crane.style.setProperty('--grip-pitch', `${pitchDegrees}deg`);
       }
