@@ -301,8 +301,8 @@
     .door-left { left: 0; transform-origin: left center; border-right-color: rgba(41,25,40,.72); }
     .door-right { right: 0; transform-origin: right center; border-left-color: rgba(41,25,40,.72); }
     .door-seam { position: absolute; z-index: 3; top: 0; bottom: 0; left: 50%; width: 2px; background: rgba(42,30,48,.5); transform: translateX(-50%); }
-    .container.is-open .door-left { transform: rotateY(var(--door-left-angle)); }
-    .container.is-open .door-right { transform: rotateY(var(--door-right-angle)); }
+    .container.is-open .door-left { transform: rotateY(var(--door-left-angle)) scaleX(.34); }
+    .container.is-open .door-right { transform: rotateY(var(--door-right-angle)) scaleX(.34); }
     .container.is-open .door-seam { opacity: 0; }
     .container.is-open .container-label, .container.is-open .container-tag { opacity: 0; }
     .container.is-open .box-trigger { pointer-events: none; }
