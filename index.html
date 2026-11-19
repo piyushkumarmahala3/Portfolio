@@ -537,13 +537,11 @@
 
       function setGrip(size, yawDegrees = 0, pitchDegrees = 0) {
         const yaw = Math.abs(yawDegrees) * Math.PI / 180;
-        const pitch = Math.abs(pitchDegrees) * Math.PI / 180;
         const projectedSpan = size.w * Math.cos(yaw) + size.d * Math.sin(yaw);
         crane.style.setProperty('--grip-span', px(projectedSpan * 1.12));
         crane.style.setProperty('--finger-w', px(projectedSpan * .56));
         crane.style.setProperty('--finger-h', px(12 + size.h * .9));
-        const frontCornerOffset = Math.sin(yaw) * size.w / 2 + Math.sin(pitch) * size.h / 2;
-        crane.style.setProperty('--finger-z', px(size.d / 2 + frontCornerOffset + 16));
+        crane.style.setProperty('--finger-z', px(size.d / 2 + 9));
         crane.style.setProperty('--grip-yaw', `${yawDegrees}deg`);
         crane.style.setProperty('--grip-pitch', `${pitchDegrees}deg`);
       }
