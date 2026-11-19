@@ -103,7 +103,7 @@
       position: relative;
       isolation: isolate;
       overflow: hidden;
-      perspective: 1400px;
+      perspective: 1100px;
       background: linear-gradient(180deg, var(--blue-top) 0%, var(--blue-mid) 55%, var(--blue-bottom) 100%);
     }
     .stage::before {
@@ -140,11 +140,22 @@
       --grip-span: 220px;
       --finger-w: 110px;
       position: absolute; z-index: 240; top: 39px; left: 50%; width: 1px;
-      height: 120px; transform: translateX(-50%);
-      transition: left .75s var(--ease-crane), --drop .56s var(--ease-crane);
+      height: 120px; transform: translateX(-50%); transform-style: preserve-3d;
+      transition: left .86s var(--ease-crane), --drop .72s var(--ease-crane);
       pointer-events: none;
     }
     .crane.is-lifting { transition: left .95s var(--ease-crane), --drop .95s var(--ease-crane); }
+    .hoist { position: absolute; inset: 0; transform-origin: top center; transform-style: preserve-3d; }
+    .crane-hardware { position: absolute; inset: 0; z-index: 2; transform-style: preserve-3d; pointer-events: none; }
+    .crane-load { position: absolute; inset: 0; transform-style: preserve-3d; pointer-events: none; }
+    .crane .container { left: 50%; top: calc(97px + var(--drop) + var(--box-h) / 2); z-index: 0 !important; pointer-events: auto; }
+    @keyframes hoist-swing {
+      0% { transform: rotateZ(0deg); }
+      35% { transform: rotateZ(-1.2deg); }
+      72% { transform: rotateZ(.65deg); }
+      100% { transform: rotateZ(0deg); }
+    }
+    .crane.is-lifting .hoist { animation: hoist-swing 1.05s cubic-bezier(.22,.75,.32,1) both; }
     .carriage {
       position: absolute; top: 0; left: -34px; width: 68px; height: 34px;
       border: 1px solid rgba(142,165,191,.7); border-radius: 11px;
@@ -188,13 +199,14 @@
       --half-w: 125px; --half-h: 54px; --half-d: 50px;
       --front-z: 52px; --back-z: 50px; --side-left: 75px; --top-offset: 4px;
       --label-size: 30px;
+      --door-left-angle: -136deg; --door-right-angle: 136deg;
       --pile-x: 50%; --pile-y: 50%; --pile-rx: -14deg; --pile-ry: 0deg; --pile-rz: 0deg;
       --x: var(--pile-x); --y: var(--pile-y); --rx: var(--pile-rx); --ry: var(--pile-ry); --rz: var(--pile-rz);
       --container-color: #e5322d; --container-dark: #a91f1b; --container-light: #ff625b;
       position: absolute; left: var(--x); top: var(--y); width: var(--box-w); height: var(--box-h);
       z-index: 10; transform-style: preserve-3d; transform-origin: center center;
       transform: translate(-50%,-50%) rotateX(var(--rx)) rotateY(var(--ry)) rotateZ(var(--rz));
-      perspective: 1200px; cursor: pointer;
+      perspective: 850px; cursor: pointer;
       transition: left .95s var(--ease-crane), top .95s var(--ease-crane), transform .95s var(--ease-crane),
         --box-w .95s var(--ease-crane), --box-h .95s var(--ease-crane), --box-d .95s var(--ease-crane),
         --half-w .95s var(--ease-crane), --half-h .95s var(--ease-crane), --half-d .95s var(--ease-crane),
@@ -205,7 +217,14 @@
     .container:hover { filter: drop-shadow(0 18px 9px rgba(5,42,94,.34)); }
     .container:hover:not(.is-selected) { top: calc(var(--y) - 8px); }
     .container:focus-within { filter: drop-shadow(0 0 7px rgba(255,210,63,.75)); }
+    .container.is-carrying {
+      transition: transform .95s var(--ease-crane), --box-w .95s var(--ease-crane), --box-h .95s var(--ease-crane), --box-d .95s var(--ease-crane),
+        --half-w .95s var(--ease-crane), --half-h .95s var(--ease-crane), --half-d .95s var(--ease-crane),
+        --front-z .95s var(--ease-crane), --back-z .95s var(--ease-crane), --side-left .95s var(--ease-crane), --top-offset .95s var(--ease-crane), --label-size .95s var(--ease-crane),
+        filter .2s ease;
+    }
     .container.is-selected { z-index: 200 !important; filter: drop-shadow(0 24px 20px rgba(0,33,78,.36)); }
+    .crane .container.is-selected { z-index: 0 !important; }
     .container-art { position: absolute; inset: 0; transform-style: preserve-3d; pointer-events: none; }
     .box-face {
       position: absolute; border: 1px solid rgba(8,37,75,.38); backface-visibility: hidden;
@@ -216,14 +235,14 @@
     .face-back { inset: 0; transform: rotateY(180deg) translateZ(var(--back-z)); background-color: var(--container-dark); }
     .face-left, .face-right {
       top: 0; width: var(--box-d); height: var(--box-h); background-color: var(--container-dark);
-      background-image: repeating-linear-gradient(90deg,rgba(255,255,255,.1) 0 2px,transparent 2px 12px,rgba(0,0,0,.12) 12px 15px,transparent 15px 22px),linear-gradient(180deg,var(--container-dark),var(--container-color));
+      background-image: repeating-linear-gradient(90deg,rgba(255,255,255,.18) 0 2px,transparent 2px 12px,rgba(0,0,0,.18) 12px 15px,transparent 15px 22px),linear-gradient(180deg,var(--container-color),var(--container-dark));
     }
     .face-left { left: var(--side-left); transform: rotateY(-90deg) translateZ(var(--half-w)); }
     .face-right { left: var(--side-left); transform: rotateY(90deg) translateZ(var(--half-w)); }
     .face-left::after, .face-right::after { content: ""; position: absolute; top: 0; bottom: 0; left: 50%; border-left: 1px solid rgba(17,35,66,.35); }
     .face-top, .face-bottom {
       left: 0; width: var(--box-w); height: var(--box-d); background-color: var(--container-light);
-      background-image: repeating-linear-gradient(90deg,rgba(255,255,255,.18) 0 2px,transparent 2px 13px,rgba(5,28,64,.1) 13px 16px,transparent 16px 25px),linear-gradient(180deg,var(--container-light),var(--container-dark));
+      background-image: repeating-linear-gradient(90deg,rgba(255,255,255,.24) 0 2px,transparent 2px 13px,rgba(5,28,64,.15) 13px 16px,transparent 16px 25px),linear-gradient(180deg,var(--container-light),var(--container-color));
     }
     .face-top { top: var(--top-offset); transform: rotateX(90deg) translateZ(var(--half-h)); }
     .face-bottom { top: var(--top-offset); transform: rotateX(-90deg) translateZ(var(--half-h)); background-color: var(--container-dark); }
@@ -233,12 +252,13 @@
       color: #f4f7fc; font-size: clamp(17px,1.35vw,20px); line-height: 1.35;
       background-color: #071b3d;
       background-image: repeating-linear-gradient(90deg,rgba(255,255,255,.055) 0 2px,transparent 2px 13px,rgba(0,0,0,.12) 13px 16px,transparent 16px 25px),linear-gradient(145deg,#0c2850,#061632);
-      border: 1px solid rgba(255,255,255,.18); transform: translateZ(var(--back-z));
+      border: 3px solid rgba(225,237,249,.88); box-shadow: inset 0 1px 0 rgba(255,255,255,.28);
+      transform: translateZ(var(--back-z));
       opacity: 0; transition: opacity .45s ease; pointer-events: auto;
     }
     .inside-wall[aria-hidden="true"] { pointer-events: none; }
     .is-open .inside-wall { opacity: 1; }
-    .inside-content { width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: .38em; text-align: center; }
+    .inside-content { width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: flex-start; gap: .38em; text-align: left; }
     .kicker { color: var(--yellow); font: 800 .62em/1 var(--font-body); letter-spacing: .17em; text-transform: uppercase; }
     .inside-content h2 { margin: 0; max-width: 100%; color: #fff; font: 700 1.7em/.9 var(--font-display); letter-spacing: -.035em; }
     .inside-content h2 em { color: var(--container-light); font: italic 400 1.08em/.8 var(--font-accent); letter-spacing: 0; }
@@ -267,23 +287,24 @@
     .door {
       position: absolute; top: 0; width: 50%; height: 100%; overflow: hidden;
       transform-style: preserve-3d; transition: transform .75s var(--ease-spring);
-      backface-visibility: hidden; border: 1px solid rgba(13,38,76,.45);
+      backface-visibility: visible; border: 1px solid rgba(13,38,76,.45);
       background-color: var(--container-color);
       background-image: repeating-linear-gradient(90deg,rgba(255,255,255,.18) 0 2px,transparent 2px 12px,rgba(4,26,59,.1) 12px 15px,transparent 15px 23px),linear-gradient(180deg,var(--container-light),var(--container-color));
       box-shadow: inset 0 0 0 1px rgba(255,255,255,.1);
     }
     .door::after {
-      content: ""; position: absolute; inset: 0; z-index: -1; transform: rotateY(180deg) translateZ(1px);
-      background-color: #0b2142;
-      background-image: repeating-linear-gradient(90deg,rgba(255,255,255,.08) 0 2px,transparent 2px 14px,rgba(0,0,0,.12) 14px 17px,transparent 17px 25px);
+      content: ""; position: absolute; inset: 0; z-index: 0; transform: rotateY(180deg) translateZ(1px);
+      background-color: var(--container-dark);
+      background-image: repeating-linear-gradient(90deg,rgba(255,255,255,.12) 0 2px,transparent 2px 14px,rgba(0,0,0,.17) 14px 17px,transparent 17px 25px),linear-gradient(180deg,var(--container-color),var(--container-dark));
       backface-visibility: hidden;
     }
     .door-left { left: 0; transform-origin: left center; border-right-color: rgba(41,25,40,.72); }
     .door-right { right: 0; transform-origin: right center; border-left-color: rgba(41,25,40,.72); }
     .door-seam { position: absolute; z-index: 3; top: 0; bottom: 0; left: 50%; width: 2px; background: rgba(42,30,48,.5); transform: translateX(-50%); }
-    .container.is-open .door-left { transform: rotateY(-122deg); }
-    .container.is-open .door-right { transform: rotateY(122deg); }
+    .container.is-open .door-left { transform: rotateY(var(--door-left-angle)); }
+    .container.is-open .door-right { transform: rotateY(var(--door-right-angle)); }
     .container.is-open .door-seam { opacity: 0; }
+    .container.is-open .container-label, .container.is-open .container-tag { opacity: 0; }
     .container.is-open .box-trigger { pointer-events: none; }
     .container-label {
       position: absolute; top: 7%; left: 7%; z-index: 2; width: 190%;
@@ -296,13 +317,13 @@
       font: 800 clamp(8px,.75vw,10px)/1 var(--font-body); letter-spacing: .2em; text-transform: uppercase;
       text-shadow: 0 1px 3px rgba(0,0,0,.22); pointer-events: none;
     }
-    .container[data-id="hello"] { --container-color:#e5322d; --container-dark:#a91f1b; --container-light:#ff625b; --pile-x:50%; --pile-y:62%; --pile-rx:-8deg; --pile-ry:-14deg; --pile-rz:4deg; }
-    .container[data-id="work"] { --container-color:#f26a1f; --container-dark:#b84a10; --container-light:#ff934d; --pile-x:12%; --pile-y:86%; --pile-rx:-8deg; --pile-ry:18deg; --pile-rz:-5deg; }
-    .container[data-id="about"] { --container-color:#1d55d8; --container-dark:#123a9c; --container-light:#4e83f2; --pile-x:37%; --pile-y:88%; --pile-rx:-7deg; --pile-ry:-12deg; --pile-rz:-4deg; }
-    .container[data-id="process"] { --container-color:#f6b919; --container-dark:#c08a0a; --container-light:#ffd34c; --pile-x:63%; --pile-y:86%; --pile-rx:-8deg; --pile-ry:14deg; --pile-rz:5deg; }
-    .container[data-id="toolkit"] { --container-color:#97a1ad; --container-dark:#6c7682; --container-light:#b8c0ca; --pile-x:87%; --pile-y:86%; --pile-rx:-7deg; --pile-ry:-16deg; --pile-rz:-5deg; }
-    .container[data-id="services"] { --container-color:#e5322d; --container-dark:#a91f1b; --container-light:#ff625b; --pile-x:25%; --pile-y:64%; --pile-rx:-8deg; --pile-ry:16deg; --pile-rz:-6deg; }
-    .container[data-id="contact"] { --container-color:#2546b8; --container-dark:#172f80; --container-light:#5575df; --pile-x:75%; --pile-y:64%; --pile-rx:-7deg; --pile-ry:-13deg; --pile-rz:6deg; }
+    .container[data-id="hello"] { --container-color:#e5322d; --container-dark:#a91f1b; --container-light:#ff725f; --pile-x:50%; --pile-y:62%; --pile-rx:-18deg; --pile-ry:-20deg; --pile-rz:3deg; }
+    .container[data-id="work"] { --container-color:#f26a1f; --container-dark:#b84a10; --container-light:#ff9a50; --pile-x:13%; --pile-y:86%; --pile-rx:-17deg; --pile-ry:24deg; --pile-rz:-6deg; }
+    .container[data-id="about"] { --container-color:#1d55d8; --container-dark:#123a9c; --container-light:#5b8cf5; --pile-x:38%; --pile-y:88%; --pile-rx:-18deg; --pile-ry:-20deg; --pile-rz:-5deg; }
+    .container[data-id="process"] { --container-color:#f6b919; --container-dark:#c08a0a; --container-light:#ffdb58; --pile-x:62%; --pile-y:86%; --pile-rx:-17deg; --pile-ry:22deg; --pile-rz:6deg; }
+    .container[data-id="toolkit"] { --container-color:#97a1ad; --container-dark:#6c7682; --container-light:#c3cbd4; --pile-x:87%; --pile-y:86%; --pile-rx:-18deg; --pile-ry:-23deg; --pile-rz:-6deg; }
+    .container[data-id="services"] { --container-color:#e5322d; --container-dark:#a91f1b; --container-light:#ff725f; --pile-x:25%; --pile-y:64%; --pile-rx:-18deg; --pile-ry:24deg; --pile-rz:-7deg; }
+    .container[data-id="contact"] { --container-color:#2546b8; --container-dark:#172f80; --container-light:#6484f0; --pile-x:75%; --pile-y:64%; --pile-rx:-18deg; --pile-ry:-22deg; --pile-rz:7deg; }
 
     .pick-hint {
       position: absolute; z-index: 150; bottom: 15px; left: 50%; transform: translateX(-50%);
@@ -330,28 +351,31 @@
       .crane { top: 28px; }
       .container { --box-w: 130px; --box-h: 78px; --box-d: 73px; }
       .container-tag { font-size: 8px; }
-      .container[data-id="hello"] { --pile-x:50%; --pile-y:58%; --pile-rx:-8deg; --pile-ry:-12deg; --pile-rz:3deg; }
-      .container[data-id="work"] { --pile-x:18%; --pile-y:89%; --pile-rx:-7deg; --pile-ry:14deg; --pile-rz:-4deg; }
-      .container[data-id="about"] { --pile-x:50%; --pile-y:90%; --pile-rx:-7deg; --pile-ry:-10deg; --pile-rz:-3deg; }
-      .container[data-id="process"] { --pile-x:82%; --pile-y:89%; --pile-rx:-8deg; --pile-ry:13deg; --pile-rz:4deg; }
-      .container[data-id="toolkit"] { --pile-x:18%; --pile-y:70%; --pile-rx:-7deg; --pile-ry:-14deg; --pile-rz:-4deg; }
-      .container[data-id="services"] { --pile-x:50%; --pile-y:70%; --pile-rx:-8deg; --pile-ry:13deg; --pile-rz:3deg; }
-      .container[data-id="contact"] { --pile-x:82%; --pile-y:70%; --pile-rx:-7deg; --pile-ry:-12deg; --pile-rz:-4deg; }
-      .inside-wall { padding: .7em; font-size: clamp(16px, 4vw, 18px); }
-      .inside-content { gap: .32em; }
-      .inside-content h2 { font-size: 1.55em; }
-      .inside-content p { font-size: .86em; }
-      .inside-list { gap: .28em; }
-      .inside-list li, .inside-list a { font-size: .86em; }
+      .container[data-id="hello"] { --pile-x:50%; --pile-y:58%; --pile-rx:-16deg; --pile-ry:-18deg; --pile-rz:3deg; }
+      .container[data-id="work"] { --pile-x:18%; --pile-y:89%; --pile-rx:-15deg; --pile-ry:22deg; --pile-rz:-5deg; }
+      .container[data-id="about"] { --pile-x:50%; --pile-y:90%; --pile-rx:-16deg; --pile-ry:-18deg; --pile-rz:-4deg; }
+      .container[data-id="process"] { --pile-x:82%; --pile-y:89%; --pile-rx:-15deg; --pile-ry:21deg; --pile-rz:5deg; }
+      .container[data-id="toolkit"] { --pile-x:18%; --pile-y:70%; --pile-rx:-16deg; --pile-ry:-21deg; --pile-rz:-5deg; }
+      .container[data-id="services"] { --pile-x:50%; --pile-y:70%; --pile-rx:-16deg; --pile-ry:20deg; --pile-rz:4deg; }
+      .container[data-id="contact"] { --pile-x:82%; --pile-y:70%; --pile-rx:-16deg; --pile-ry:-20deg; --pile-rz:-5deg; }
+      .container { --door-left-angle: -100deg; --door-right-angle: 100deg; }
+      .inside-wall { padding: .7em; font-size: clamp(14px, 3.6vw, 16px); }
+      .inside-content { gap: .22em; }
+      .inside-content h2 { font-size: 1.4em; }
+      .inside-content p { font-size: .82em; line-height: 1.25; }
+      .inside-list { gap: .2em; }
+      .inside-list li, .inside-list a { font-size: .8em; }
     }
     @media (max-width: 360px) {
       .nav-link { font-size: 13px; }
       .brand-name { font-size: 12px; }
     }
     @media (min-width: 701px) and (max-width: 850px) {
-      .inside-wall { font-size: 14px; }
+      .container { --door-left-angle: -108deg; --door-right-angle: 108deg; }
+      .inside-wall { padding: .65em; font-size: 13px; }
       .inside-content { gap: .28em; }
-      .inside-list { gap: .28em; }
+      .inside-list { gap: .22em; }
+      .inside-list li, .inside-list a { font-size: .78em; }
     }
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; }
@@ -380,9 +404,15 @@
       <h1 class="backdrop-word" aria-hidden="true">PORTFOLIO</h1>
 
       <div class="rail" aria-hidden="true"></div>
-      <div class="crane fingers-open" id="crane" aria-hidden="true">
-        <div class="carriage"></div><div class="rod"></div><div class="grip-head"></div>
-        <span class="finger finger-left"></span><span class="finger finger-right"></span>
+      <div class="crane fingers-open" id="crane">
+        <div class="carriage" aria-hidden="true"></div>
+        <div class="hoist">
+          <div class="crane-hardware" aria-hidden="true">
+            <div class="rod"></div><div class="grip-head"></div>
+            <span class="finger finger-left"></span><span class="finger finger-right"></span>
+          </div>
+          <div class="crane-load" id="craneLoad"></div>
+        </div>
       </div>
 
       <div class="container-pile" id="containerPile">
@@ -485,11 +515,13 @@
     (() => {
       const stage = document.getElementById('stage');
       const crane = document.getElementById('crane');
+      const craneLoad = document.getElementById('craneLoad');
+      const containerPile = document.getElementById('containerPile');
       const containers = [...document.querySelectorAll('.container')];
       const navButtons = [...document.querySelectorAll('[data-open]')];
       const status = document.getElementById('status');
       const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
-      const boxScale = () => window.innerWidth <= 850 ? 2.4 : 1.95;
+      const boxScale = () => window.innerWidth <= 700 ? 2.18 : 1.95;
       let activeId = null;
       let busy = false;
       let queuedId = null;
@@ -556,7 +588,7 @@
 
       function craneDropTo(boxTop) {
         const drop = boxTop - crane.offsetTop - 97;
-        crane.style.setProperty('--drop', px(Math.max(26, drop)));
+        crane.style.setProperty('--drop', px(Math.max(0, drop)));
       }
 
       function craneTo(x, boxTop) {
@@ -585,14 +617,12 @@
 
       function activateContainer(el) {
         const { width, height, baseW, baseH, baseD, scale } = metrics();
-        const liftY = window.innerWidth <= 700 ? 37 : 41;
+        const liftY = window.innerWidth <= 700 ? 32 : 30;
         crane.classList.add('is-lifting');
-        el.style.zIndex = '200';
+        el.style.zIndex = '1';
         sizeBox(el, scale);
-        el.style.setProperty('--x', '50%');
-        el.style.setProperty('--y', `${liftY}%`);
-        el.style.setProperty('--rx', '-7deg');
-        el.style.setProperty('--ry', '-11deg');
+        el.style.setProperty('--rx', '-13deg');
+        el.style.setProperty('--ry', '-6deg');
         el.style.setProperty('--rz', '0deg');
         const w = baseW * scale;
         const h = baseH * scale;
@@ -611,6 +641,8 @@
         const { width, height, baseW, baseH } = metrics();
         const pose = pilePose(el);
         const pileTop = height * pose.y / 100 - baseH / 2;
+        crane.classList.add('is-lifting');
+        crane.classList.remove('fingers-open');
         crane.style.setProperty('--grip-span', px(baseW * 1.06));
         crane.style.setProperty('--finger-w', px(baseW * .53));
         craneTo(width * pose.x / 100, pileTop);
@@ -619,6 +651,10 @@
         crane.classList.add('fingers-open');
         await wait(240);
         el.classList.remove('is-selected');
+        containerPile.appendChild(el);
+        resetContainer(el);
+        void el.offsetHeight;
+        el.classList.remove('is-carrying');
         crane.classList.remove('is-lifting');
         status.textContent = `${id} container returned to the pile.`;
       }
@@ -654,6 +690,8 @@
           await wait(240);
 
           target.classList.add('is-selected');
+          target.classList.add('is-carrying');
+          craneLoad.appendChild(target);
           activeId = id;
           activateContainer(target);
           status.textContent = `${id} container lifted. Opening section.`;
