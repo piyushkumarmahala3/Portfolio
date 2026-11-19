@@ -12,17 +12,18 @@
   <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 64 64%22><rect width=%2264%22 height=%2264%22 rx=%2216%22 fill=%22%23e5322d%22/><text x=%2232%22 y=%2244%22 text-anchor=%22middle%22 font-family=%22Arial%22 font-size=%2232%22 font-weight=%22700%22 fill=%22white%22>PK</text></svg>">
   <style>
-    @property --box-w { syntax: "<length>"; inherits: false; initial-value: 250px; }
-    @property --box-h { syntax: "<length>"; inherits: false; initial-value: 108px; }
-    @property --box-d { syntax: "<length>"; inherits: false; initial-value: 100px; }
-    @property --half-w { syntax: "<length>"; inherits: false; initial-value: 125px; }
-    @property --half-h { syntax: "<length>"; inherits: false; initial-value: 54px; }
-    @property --half-d { syntax: "<length>"; inherits: false; initial-value: 50px; }
-    @property --front-z { syntax: "<length>"; inherits: false; initial-value: 52px; }
-    @property --back-z { syntax: "<length>"; inherits: false; initial-value: 50px; }
-    @property --side-left { syntax: "<length>"; inherits: false; initial-value: 75px; }
-    @property --top-offset { syntax: "<length>"; inherits: false; initial-value: 4px; }
-    @property --label-size { syntax: "<length>"; inherits: false; initial-value: 30px; }
+    @property --box-w { syntax: "<length>"; inherits: true; initial-value: 250px; }
+    @property --box-h { syntax: "<length>"; inherits: true; initial-value: 108px; }
+    @property --box-d { syntax: "<length>"; inherits: true; initial-value: 100px; }
+    @property --half-w { syntax: "<length>"; inherits: true; initial-value: 125px; }
+    @property --half-h { syntax: "<length>"; inherits: true; initial-value: 54px; }
+    @property --half-d { syntax: "<length>"; inherits: true; initial-value: 50px; }
+    @property --front-z { syntax: "<length>"; inherits: true; initial-value: 52px; }
+    @property --back-z { syntax: "<length>"; inherits: true; initial-value: 50px; }
+    @property --side-left { syntax: "<length>"; inherits: true; initial-value: 75px; }
+    @property --top-offset { syntax: "<length>"; inherits: true; initial-value: 4px; }
+    @property --label-size { syntax: "<length>"; inherits: true; initial-value: 30px; }
+    @property --drop { syntax: "<length>"; inherits: true; initial-value: 48px; }
 
     :root {
       color-scheme: light;
@@ -138,11 +139,12 @@
       --drop: 48px;
       --grip-span: 220px;
       --finger-w: 110px;
-      position: absolute; z-index: 80; top: 39px; left: 50%; width: 1px;
+      position: absolute; z-index: 240; top: 39px; left: 50%; width: 1px;
       height: 120px; transform: translateX(-50%);
-      transition: left .75s var(--ease-crane);
+      transition: left .75s var(--ease-crane), --drop .56s var(--ease-crane);
       pointer-events: none;
     }
+    .crane.is-lifting { transition: left .95s var(--ease-crane), --drop .95s var(--ease-crane); }
     .carriage {
       position: absolute; top: 0; left: -34px; width: 68px; height: 34px;
       border: 1px solid rgba(142,165,191,.7); border-radius: 11px;
@@ -159,14 +161,12 @@
       position: absolute; top: 32px; left: -3px; width: 6px; height: var(--drop);
       background: linear-gradient(90deg,#94a9bd 0%,#fff 34%,#eaf3fb 63%,#8298ad 100%);
       border-radius: 8px; box-shadow: 0 2px 5px rgba(0,38,82,.2);
-      transition: height .56s var(--ease-crane);
     }
     .grip-head {
       position: absolute; top: calc(31px + var(--drop)); left: -36px; width: 72px; height: 34px;
       border: 1px solid rgba(144,165,188,.65); border-radius: 10px;
       background: linear-gradient(180deg,#fff 0%,#f8fbff 55%,#c7d4e0 100%);
       box-shadow: 0 4px 9px rgba(0,38,82,.22), inset 0 1px 2px #fff;
-      transition: top .56s var(--ease-crane);
     }
     .finger {
       position: absolute; top: calc(57px + var(--drop)); width: var(--finger-w); height: 37px;
@@ -182,19 +182,20 @@
     .crane.fingers-open .finger-left { transform: rotate(-16deg); }
     .crane.fingers-open .finger-right { transform: rotate(16deg); }
 
-    .container-pile { position: absolute; z-index: 10; inset: 0; transform-style: preserve-3d; }
+    .container-pile { position: absolute; z-index: 10; inset: 0; transform-style: flat; isolation: isolate; }
     .container {
       --box-w: 250px; --box-h: 108px; --box-d: 100px;
       --half-w: 125px; --half-h: 54px; --half-d: 50px;
       --front-z: 52px; --back-z: 50px; --side-left: 75px; --top-offset: 4px;
       --label-size: 30px;
-      --x: 50%; --y: 50%; --rx: -14deg; --ry: 0deg; --rz: 0deg;
+      --pile-x: 50%; --pile-y: 50%; --pile-rx: -14deg; --pile-ry: 0deg; --pile-rz: 0deg;
+      --x: var(--pile-x); --y: var(--pile-y); --rx: var(--pile-rx); --ry: var(--pile-ry); --rz: var(--pile-rz);
       --container-color: #e5322d; --container-dark: #a91f1b; --container-light: #ff625b;
       position: absolute; left: var(--x); top: var(--y); width: var(--box-w); height: var(--box-h);
       z-index: 10; transform-style: preserve-3d; transform-origin: center center;
       transform: translate(-50%,-50%) rotateX(var(--rx)) rotateY(var(--ry)) rotateZ(var(--rz));
       perspective: 1200px; cursor: pointer;
-      transition: left .85s var(--ease-crane), top .85s var(--ease-crane), transform .95s var(--ease-crane),
+      transition: left .95s var(--ease-crane), top .95s var(--ease-crane), transform .95s var(--ease-crane),
         --box-w .95s var(--ease-crane), --box-h .95s var(--ease-crane), --box-d .95s var(--ease-crane),
         --half-w .95s var(--ease-crane), --half-h .95s var(--ease-crane), --half-d .95s var(--ease-crane),
         --front-z .95s var(--ease-crane), --back-z .95s var(--ease-crane), --side-left .95s var(--ease-crane), --top-offset .95s var(--ease-crane), --label-size .95s var(--ease-crane),
@@ -204,7 +205,7 @@
     .container:hover { filter: drop-shadow(0 18px 9px rgba(5,42,94,.34)); }
     .container:hover:not(.is-selected) { top: calc(var(--y) - 8px); }
     .container:focus-within { filter: drop-shadow(0 0 7px rgba(255,210,63,.75)); }
-    .container.is-selected { z-index: 100 !important; filter: drop-shadow(0 24px 20px rgba(0,33,78,.36)); }
+    .container.is-selected { z-index: 200 !important; filter: drop-shadow(0 24px 20px rgba(0,33,78,.36)); }
     .container-art { position: absolute; inset: 0; transform-style: preserve-3d; pointer-events: none; }
     .box-face {
       position: absolute; border: 1px solid rgba(8,37,75,.38); backface-visibility: hidden;
@@ -295,13 +296,13 @@
       font: 800 clamp(8px,.75vw,10px)/1 var(--font-body); letter-spacing: .2em; text-transform: uppercase;
       text-shadow: 0 1px 3px rgba(0,0,0,.22); pointer-events: none;
     }
-    .container[data-id="hello"] { --container-color:#e5322d; --container-dark:#a91f1b; --container-light:#ff625b; --x:48%; --y:66%; --rx:-14deg; --ry:-24deg; --rz:6deg; }
-    .container[data-id="work"] { --container-color:#f26a1f; --container-dark:#b84a10; --container-light:#ff934d; --x:13%; --y:86%; --rx:-16deg; --ry:28deg; --rz:16deg; }
-    .container[data-id="about"] { --container-color:#1d55d8; --container-dark:#123a9c; --container-light:#4e83f2; --x:36%; --y:90%; --rx:-12deg; --ry:-20deg; --rz:-10deg; }
-    .container[data-id="process"] { --container-color:#f6b919; --container-dark:#c08a0a; --container-light:#ffd34c; --x:60%; --y:88%; --rx:-14deg; --ry:24deg; --rz:12deg; }
-    .container[data-id="toolkit"] { --container-color:#97a1ad; --container-dark:#6c7682; --container-light:#b8c0ca; --x:86%; --y:86%; --rx:-16deg; --ry:-30deg; --rz:-14deg; }
-    .container[data-id="services"] { --container-color:#e5322d; --container-dark:#a91f1b; --container-light:#ff625b; --x:25%; --y:68%; --rx:-14deg; --ry:30deg; --rz:-12deg; }
-    .container[data-id="contact"] { --container-color:#2546b8; --container-dark:#172f80; --container-light:#5575df; --x:73%; --y:68%; --rx:-14deg; --ry:-26deg; --rz:16deg; }
+    .container[data-id="hello"] { --container-color:#e5322d; --container-dark:#a91f1b; --container-light:#ff625b; --pile-x:50%; --pile-y:62%; --pile-rx:-8deg; --pile-ry:-14deg; --pile-rz:4deg; }
+    .container[data-id="work"] { --container-color:#f26a1f; --container-dark:#b84a10; --container-light:#ff934d; --pile-x:12%; --pile-y:86%; --pile-rx:-8deg; --pile-ry:18deg; --pile-rz:-5deg; }
+    .container[data-id="about"] { --container-color:#1d55d8; --container-dark:#123a9c; --container-light:#4e83f2; --pile-x:37%; --pile-y:88%; --pile-rx:-7deg; --pile-ry:-12deg; --pile-rz:-4deg; }
+    .container[data-id="process"] { --container-color:#f6b919; --container-dark:#c08a0a; --container-light:#ffd34c; --pile-x:63%; --pile-y:86%; --pile-rx:-8deg; --pile-ry:14deg; --pile-rz:5deg; }
+    .container[data-id="toolkit"] { --container-color:#97a1ad; --container-dark:#6c7682; --container-light:#b8c0ca; --pile-x:87%; --pile-y:86%; --pile-rx:-7deg; --pile-ry:-16deg; --pile-rz:-5deg; }
+    .container[data-id="services"] { --container-color:#e5322d; --container-dark:#a91f1b; --container-light:#ff625b; --pile-x:25%; --pile-y:64%; --pile-rx:-8deg; --pile-ry:16deg; --pile-rz:-6deg; }
+    .container[data-id="contact"] { --container-color:#2546b8; --container-dark:#172f80; --container-light:#5575df; --pile-x:75%; --pile-y:64%; --pile-rx:-7deg; --pile-ry:-13deg; --pile-rz:6deg; }
 
     .pick-hint {
       position: absolute; z-index: 150; bottom: 15px; left: 50%; transform: translateX(-50%);
@@ -327,15 +328,15 @@
       .backdrop-word { top: 56%; font-size: clamp(90px, 25vw, 150px); }
       .rail { top: 37px; height: 13px; }
       .crane { top: 28px; }
-      .container { --box-w: 148px; --box-h: 89px; --box-d: 83px; }
+      .container { --box-w: 130px; --box-h: 78px; --box-d: 73px; }
       .container-tag { font-size: 8px; }
-      .container[data-id="hello"] { --x:50%; --y:64%; --rx:-14deg; --ry:-20deg; --rz:5deg; }
-      .container[data-id="work"] { --x:17%; --y:91%; --rx:-16deg; --ry:25deg; --rz:13deg; }
-      .container[data-id="about"] { --x:50%; --y:93%; --rx:-12deg; --ry:-20deg; --rz:-8deg; }
-      .container[data-id="process"] { --x:84%; --y:90%; --rx:-14deg; --ry:22deg; --rz:11deg; }
-      .container[data-id="toolkit"] { --x:20%; --y:77%; --rx:-16deg; --ry:-27deg; --rz:-12deg; }
-      .container[data-id="services"] { --x:52%; --y:79%; --rx:-14deg; --ry:28deg; --rz:-10deg; }
-      .container[data-id="contact"] { --x:82%; --y:76%; --rx:-14deg; --ry:-24deg; --rz:13deg; }
+      .container[data-id="hello"] { --pile-x:50%; --pile-y:58%; --pile-rx:-8deg; --pile-ry:-12deg; --pile-rz:3deg; }
+      .container[data-id="work"] { --pile-x:18%; --pile-y:89%; --pile-rx:-7deg; --pile-ry:14deg; --pile-rz:-4deg; }
+      .container[data-id="about"] { --pile-x:50%; --pile-y:90%; --pile-rx:-7deg; --pile-ry:-10deg; --pile-rz:-3deg; }
+      .container[data-id="process"] { --pile-x:82%; --pile-y:89%; --pile-rx:-8deg; --pile-ry:13deg; --pile-rz:4deg; }
+      .container[data-id="toolkit"] { --pile-x:18%; --pile-y:70%; --pile-rx:-7deg; --pile-ry:-14deg; --pile-rz:-4deg; }
+      .container[data-id="services"] { --pile-x:50%; --pile-y:70%; --pile-rx:-8deg; --pile-ry:13deg; --pile-rz:3deg; }
+      .container[data-id="contact"] { --pile-x:82%; --pile-y:70%; --pile-rx:-7deg; --pile-ry:-12deg; --pile-rz:-4deg; }
       .inside-wall { padding: .7em; font-size: clamp(16px, 4vw, 18px); }
       .inside-content { gap: .32em; }
       .inside-content h2 { font-size: 1.55em; }
@@ -346,6 +347,11 @@
     @media (max-width: 360px) {
       .nav-link { font-size: 13px; }
       .brand-name { font-size: 12px; }
+    }
+    @media (min-width: 701px) and (max-width: 850px) {
+      .inside-wall { font-size: 14px; }
+      .inside-content { gap: .28em; }
+      .inside-list { gap: .28em; }
     }
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; }
@@ -380,7 +386,7 @@
       </div>
 
       <div class="container-pile" id="containerPile">
-        <article class="container" data-id="hello" data-x="48" data-y="66" data-rx="-14" data-ry="-24" data-rz="6">
+        <article class="container" data-id="hello">
           <div class="container-art" aria-hidden="true">
             <div class="box-face face-back"></div><div class="box-face face-left"></div><div class="box-face face-right"></div><div class="box-face face-top"></div><div class="box-face face-bottom"></div>
           </div>
@@ -397,7 +403,7 @@
           </button>
         </article>
 
-        <article class="container" data-id="work" data-x="13" data-y="86" data-rx="-16" data-ry="28" data-rz="16">
+        <article class="container" data-id="work">
           <div class="container-art" aria-hidden="true"><div class="box-face face-back"></div><div class="box-face face-left"></div><div class="box-face face-right"></div><div class="box-face face-top"></div><div class="box-face face-bottom"></div></div>
           <section class="inside-wall" id="inside-work" aria-hidden="true" inert>
             <div class="inside-content">
@@ -412,7 +418,7 @@
           <button class="box-trigger" type="button" aria-label="Open selected work" aria-controls="inside-work" aria-expanded="false"><span class="door door-left"><span class="container-label"><span>THE</span><span>WORK</span></span></span><span class="door door-right"><span class="container-tag">02</span></span><span class="door-seam" aria-hidden="true"></span></button>
         </article>
 
-        <article class="container" data-id="about" data-x="36" data-y="90" data-rx="-12" data-ry="-20" data-rz="-10">
+        <article class="container" data-id="about">
           <div class="container-art" aria-hidden="true"><div class="box-face face-back"></div><div class="box-face face-left"></div><div class="box-face face-right"></div><div class="box-face face-top"></div><div class="box-face face-bottom"></div></div>
           <section class="inside-wall" id="inside-about" aria-hidden="true" inert>
             <div class="inside-content">
@@ -423,7 +429,7 @@
           <button class="box-trigger" type="button" aria-label="Open about me" aria-controls="inside-about" aria-expanded="false"><span class="door door-left"><span class="container-label"><span>ABOUT</span><span>ME</span></span></span><span class="door door-right"><span class="container-tag">03</span></span><span class="door-seam" aria-hidden="true"></span></button>
         </article>
 
-        <article class="container" data-id="process" data-x="60" data-y="88" data-rx="-14" data-ry="24" data-rz="12">
+        <article class="container" data-id="process">
           <div class="container-art" aria-hidden="true"><div class="box-face face-back"></div><div class="box-face face-left"></div><div class="box-face face-right"></div><div class="box-face face-top"></div><div class="box-face face-bottom"></div></div>
           <section class="inside-wall" id="inside-process" aria-hidden="true" inert>
             <div class="inside-content">
@@ -434,7 +440,7 @@
           <button class="box-trigger" type="button" aria-label="Open my process" aria-controls="inside-process" aria-expanded="false"><span class="door door-left"><span class="container-label"><span>PRO</span><span>CESS</span></span></span><span class="door door-right"><span class="container-tag">04</span></span><span class="door-seam" aria-hidden="true"></span></button>
         </article>
 
-        <article class="container" data-id="toolkit" data-x="86" data-y="86" data-rx="-16" data-ry="-30" data-rz="-14">
+        <article class="container" data-id="toolkit">
           <div class="container-art" aria-hidden="true"><div class="box-face face-back"></div><div class="box-face face-left"></div><div class="box-face face-right"></div><div class="box-face face-top"></div><div class="box-face face-bottom"></div></div>
           <section class="inside-wall" id="inside-toolkit" aria-hidden="true" inert>
             <div class="inside-content">
@@ -445,7 +451,7 @@
           <button class="box-trigger" type="button" aria-label="Open my toolkit" aria-controls="inside-toolkit" aria-expanded="false"><span class="door door-left"><span class="container-label"><span>TOOL</span><span>KIT</span></span></span><span class="door door-right"><span class="container-tag">05</span></span><span class="door-seam" aria-hidden="true"></span></button>
         </article>
 
-        <article class="container" data-id="services" data-x="25" data-y="68" data-rx="-14" data-ry="30" data-rz="-12">
+        <article class="container" data-id="services">
           <div class="container-art" aria-hidden="true"><div class="box-face face-back"></div><div class="box-face face-left"></div><div class="box-face face-right"></div><div class="box-face face-top"></div><div class="box-face face-bottom"></div></div>
           <section class="inside-wall" id="inside-services" aria-hidden="true" inert>
             <div class="inside-content">
@@ -456,7 +462,7 @@
           <button class="box-trigger" type="button" aria-label="Open what I do" aria-controls="inside-services" aria-expanded="false"><span class="door door-left"><span class="container-label"><span>WHAT</span><span>I DO</span></span></span><span class="door door-right"><span class="container-tag">06</span></span><span class="door-seam" aria-hidden="true"></span></button>
         </article>
 
-        <article class="container" data-id="contact" data-x="73" data-y="68" data-rx="-14" data-ry="-26" data-rz="16">
+        <article class="container" data-id="contact">
           <div class="container-art" aria-hidden="true"><div class="box-face face-back"></div><div class="box-face face-left"></div><div class="box-face face-right"></div><div class="box-face face-top"></div><div class="box-face face-bottom"></div></div>
           <section class="inside-wall" id="inside-contact" aria-hidden="true" inert>
             <div class="inside-content">
@@ -483,7 +489,7 @@
       const navButtons = [...document.querySelectorAll('[data-open]')];
       const status = document.getElementById('status');
       const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
-      const boxScale = () => window.innerWidth <= 700 ? 2.4 : 1.95;
+      const boxScale = () => window.innerWidth <= 850 ? 2.4 : 1.95;
       let activeId = null;
       let busy = false;
       let queuedId = null;
@@ -491,13 +497,12 @@
 
       const wait = ms => new Promise(resolve => setTimeout(resolve, reduceMotion.matches ? 0 : ms));
       const px = n => `${Math.round(n * 100) / 100}px`;
-      const number = (el, attr) => Number(el.dataset[attr]);
 
       function metrics() {
         const width = stage.clientWidth;
         const height = stage.clientHeight;
         const mobile = window.innerWidth <= 700;
-        const baseW = mobile ? Math.min(170, Math.max(120, width * .38)) : Math.min(310, Math.max(200, width * .20));
+        const baseW = mobile ? Math.min(145, Math.max(110, width * .33)) : Math.min(280, Math.max(170, width * .16));
         const baseH = baseW * (mobile ? .60 : .43);
         const baseD = baseW * (mobile ? .56 : .40);
         return { width, height, baseW, baseH, baseD, scale: boxScale() };
@@ -522,18 +527,41 @@
         return { w, h, d };
       }
 
-      function pilePosition(el, size = sizeBox(el, 1)) {
+      function pilePose(el) {
+        const style = getComputedStyle(el);
         return {
-          x: metrics().width * number(el, 'x') / 100,
-          top: metrics().height * number(el, 'y') / 100 - size.h / 2,
-          centerY: metrics().height * number(el, 'y') / 100
+          x: parseFloat(style.getPropertyValue('--pile-x')),
+          y: parseFloat(style.getPropertyValue('--pile-y')),
+          rx: style.getPropertyValue('--pile-rx').trim(),
+          ry: style.getPropertyValue('--pile-ry').trim(),
+          rz: style.getPropertyValue('--pile-rz').trim()
         };
       }
 
-      function craneTo(x, boxTop) {
+      function pilePosition(el, size = sizeBox(el, 1)) {
+        const { width, height } = metrics();
+        const pose = pilePose(el);
+        return {
+          x: width * pose.x / 100,
+          top: height * pose.y / 100 - size.h / 2,
+          centerY: height * pose.y / 100,
+          pose
+        };
+      }
+
+      function craneX(x) {
         const { width } = metrics();
         crane.style.left = px(Math.max(36, Math.min(width - 36, x)));
-        crane.style.setProperty('--drop', px(Math.max(26, boxTop - 136)));
+      }
+
+      function craneDropTo(boxTop) {
+        const drop = boxTop - crane.offsetTop - 97;
+        crane.style.setProperty('--drop', px(Math.max(26, drop)));
+      }
+
+      function craneTo(x, boxTop) {
+        craneX(x);
+        craneDropTo(boxTop);
       }
 
       function setContainerAccessibility(el, isOpen) {
@@ -545,29 +573,30 @@
       }
 
       function resetContainer(el) {
-        const d = el.dataset;
-        const { baseW, baseH, baseD, width, height } = metrics();
+        const pose = pilePose(el);
         sizeBox(el, 1);
-        el.style.setProperty('--x', `${number(el, 'x')}%`);
-        el.style.setProperty('--y', `${number(el, 'y')}%`);
-        el.style.setProperty('--rx', `${number(el, 'rx')}deg`);
-        el.style.setProperty('--ry', `${number(el, 'ry')}deg`);
-        el.style.setProperty('--rz', `${number(el, 'rz')}deg`);
-        el.style.zIndex = String(10 + Math.round(number(el, 'y')));
+        el.style.setProperty('--x', `${pose.x}%`);
+        el.style.setProperty('--y', `${pose.y}%`);
+        el.style.setProperty('--rx', pose.rx);
+        el.style.setProperty('--ry', pose.ry);
+        el.style.setProperty('--rz', pose.rz);
+        el.style.zIndex = String(10 + Math.round(pose.y));
       }
 
       function activateContainer(el) {
         const { width, height, baseW, baseH, baseD, scale } = metrics();
+        const liftY = window.innerWidth <= 700 ? 37 : 41;
+        crane.classList.add('is-lifting');
         el.style.zIndex = '200';
         sizeBox(el, scale);
         el.style.setProperty('--x', '50%');
-        el.style.setProperty('--y', '41%');
+        el.style.setProperty('--y', `${liftY}%`);
         el.style.setProperty('--rx', '-7deg');
         el.style.setProperty('--ry', '-11deg');
         el.style.setProperty('--rz', '0deg');
         const w = baseW * scale;
         const h = baseH * scale;
-        const targetTop = height * .41 - h / 2;
+        const targetTop = height * liftY / 100 - h / 2;
         crane.style.setProperty('--grip-span', px(w * 1.06));
         crane.style.setProperty('--finger-w', px(w * .53));
         craneTo(width / 2, targetTop);
@@ -580,15 +609,17 @@
         setContainerAccessibility(el, false);
         await wait(450);
         const { width, height, baseW, baseH } = metrics();
-        const pileTop = height * number(el, 'y') / 100 - baseH / 2;
+        const pose = pilePose(el);
+        const pileTop = height * pose.y / 100 - baseH / 2;
         crane.style.setProperty('--grip-span', px(baseW * 1.06));
         crane.style.setProperty('--finger-w', px(baseW * .53));
-        craneTo(width * number(el, 'x') / 100, pileTop);
+        craneTo(width * pose.x / 100, pileTop);
         resetContainer(el);
-        await wait(850);
+        await wait(950);
         crane.classList.add('fingers-open');
-        await wait(150);
+        await wait(240);
         el.classList.remove('is-selected');
+        crane.classList.remove('is-lifting');
         status.textContent = `${id} container returned to the pile.`;
       }
 
@@ -608,14 +639,16 @@
           const { width, height, baseW, baseH } = metrics();
           const size = sizeBox(target, 1);
           const targetPose = pilePosition(target, size);
+          crane.classList.remove('is-lifting');
           crane.classList.add('fingers-open');
           crane.style.setProperty('--grip-span', px(baseW * 1.06));
           crane.style.setProperty('--finger-w', px(baseW * .53));
-          craneTo(targetPose.x, targetPose.top);
+          crane.style.setProperty('--drop', '48px');
+          craneX(targetPose.x);
           status.textContent = `Crane moving to ${id} container.`;
           await wait(750);
 
-          crane.style.setProperty('--drop', px(Math.max(26, targetPose.top - 136)));
+          craneDropTo(targetPose.top);
           await wait(560);
           crane.classList.remove('fingers-open');
           await wait(240);
@@ -645,7 +678,7 @@
       function layoutAll() {
         for (const el of containers) {
           if (el.dataset.id === activeId) activateContainer(el);
-          else if (!el.classList.contains('is-selected')) sizeBox(el, 1);
+          else if (!el.classList.contains('is-selected')) resetContainer(el);
         }
       }
 
