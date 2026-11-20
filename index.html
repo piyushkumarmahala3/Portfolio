@@ -24,6 +24,12 @@
     @property --top-offset { syntax: "<length>"; inherits: true; initial-value: 4px; }
     @property --label-size { syntax: "<length>"; inherits: true; initial-value: 30px; }
     @property --drop { syntax: "<length>"; inherits: true; initial-value: 48px; }
+    @property --finger-z { syntax: "<length>"; inherits: true; initial-value: 56px; }
+    @property --socket-z { syntax: "<length>"; inherits: true; initial-value: 28px; }
+    @property --grip-yaw { syntax: "<angle>"; inherits: true; initial-value: 0deg; }
+    @property --grip-pitch { syntax: "<angle>"; inherits: true; initial-value: 0deg; }
+    @property --grip-roll { syntax: "<angle>"; inherits: true; initial-value: 0deg; }
+    @property --finger-open-angle { syntax: "<angle>"; inherits: false; initial-value: 0deg; }
 
     :root {
       color-scheme: light;
@@ -141,8 +147,10 @@
       --finger-w: 110px;
       --finger-h: 90px;
       --finger-z: 56px;
+      --socket-z: 28px;
       --grip-yaw: 0deg;
       --grip-pitch: 0deg;
+      --grip-roll: 0deg;
       position: absolute; z-index: 240; top: 39px; left: 50%; width: 1px;
       height: 120px; transform: translateX(-50%); transform-style: preserve-3d;
       transition: left .86s var(--ease-crane), --drop .72s var(--ease-crane);
@@ -177,24 +185,26 @@
       background: linear-gradient(90deg,#94a9bd 0%,#fff 34%,#eaf3fb 63%,#8298ad 100%);
       border-radius: 8px; box-shadow: 0 2px 5px rgba(0,38,82,.2);
     }
-    .grip-head {
-      position: absolute; top: calc(31px + var(--drop)); left: -36px; width: 72px; height: 52px;
-      border: 1px solid rgba(144,165,188,.65); border-radius: 10px;
-      background: linear-gradient(180deg,#fff 0%,#f8fbff 55%,#c7d4e0 100%);
-      box-shadow: 0 4px 9px rgba(0,38,82,.22), inset 0 1px 2px #fff;
-    }
     .wrist-bridge, .wrist-socket {
       position: absolute; background: linear-gradient(180deg,#fff 0%,#f5f8fb 58%,#b7c6d5 100%);
       border: 1px solid rgba(144,165,188,.65); box-shadow: 0 2px 6px rgba(0,37,78,.24), inset 0 1px 2px #fff;
-      transform: rotateX(var(--grip-pitch)) rotateY(var(--grip-yaw)) translateZ(var(--finger-z));
+      transition: --grip-yaw .95s var(--ease-crane), --grip-pitch .95s var(--ease-crane), --grip-roll .95s var(--ease-crane), --finger-z .95s var(--ease-crane), --socket-z .95s var(--ease-crane);
+      transform: rotateX(var(--grip-pitch)) rotateY(var(--grip-yaw)) rotateZ(var(--grip-roll)) translateZ(var(--finger-z));
     }
-    .wrist-bridge { top: calc(77px + var(--drop)); left: -38px; width: 76px; height: 14px; border-radius: 7px; }
-    .wrist-socket { top: calc(57px + var(--drop)); left: -18px; width: 36px; height: 40px; border-radius: 9px; }
+    .wrist-bridge { top: calc(58px + var(--drop)); left: -38px; width: 76px; height: 22px; border-radius: 10px; }
+    .wrist-socket {
+      top: calc(20px + var(--drop)); left: -18px; width: 36px; height: 48px; border-radius: 14px;
+      transform: rotateX(var(--grip-pitch)) rotateY(var(--grip-yaw)) rotateZ(var(--grip-roll)) translateZ(var(--socket-z));
+    }
     .finger {
-      position: absolute; top: calc(82px + var(--drop)); width: var(--finger-w); height: var(--finger-h);
-      transition: width .42s var(--ease-crane), height .42s var(--ease-crane), transform .38s var(--ease-spring); transform-origin: center 4px;
+      position: absolute; top: calc(75px + var(--drop)); width: var(--finger-w); height: var(--finger-h);
+      transition: width .95s var(--ease-crane), height .95s var(--ease-crane), --grip-yaw .95s var(--ease-crane), --grip-pitch .95s var(--ease-crane), --grip-roll .95s var(--ease-crane), --finger-z .95s var(--ease-crane), --finger-open-angle .38s var(--ease-spring);
+      transform-origin: center 4px;
     }
-    .finger-left, .finger-right { transform: rotateX(var(--grip-pitch)) rotateY(var(--grip-yaw)) translateZ(var(--finger-z)); }
+    .finger-left, .finger-right {
+      --finger-open-angle: 0deg;
+      transform: rotateX(var(--grip-pitch)) rotateY(var(--grip-yaw)) rotateZ(var(--grip-roll)) translateZ(var(--finger-z)) rotateZ(var(--finger-open-angle));
+    }
     .finger::before, .finger::after { content: ""; position: absolute; background: linear-gradient(180deg,#fff 0%,#f5f8fb 60%,#b7c6d5 100%); box-shadow: 0 2px 5px rgba(0,37,78,.2); }
     .finger::before { top: 0; width: 100%; height: 8px; border-radius: 5px; }
     .finger::after { top: 0; width: 8px; height: var(--finger-h); border-radius: 5px; }
@@ -204,8 +214,8 @@
     .finger-right { left: 0; transform-origin: left 4px; }
     .finger-right::before { left: -6px; width: calc(100% + 6px); }
     .finger-right::after { right: 0; }
-    .crane.fingers-open .finger-left { transform: rotateX(var(--grip-pitch)) rotateY(var(--grip-yaw)) translateZ(var(--finger-z)) rotateZ(16deg); }
-    .crane.fingers-open .finger-right { transform: rotateX(var(--grip-pitch)) rotateY(var(--grip-yaw)) translateZ(var(--finger-z)) rotateZ(-16deg); }
+    .crane.fingers-open .finger-left { --finger-open-angle: 16deg; }
+    .crane.fingers-open .finger-right { --finger-open-angle: -16deg; }
 
     .container-pile { position: absolute; z-index: 10; inset: 0; transform-style: preserve-3d; }
     .container {
@@ -422,8 +432,8 @@
         <div class="carriage" aria-hidden="true"></div>
         <div class="hoist">
           <div class="crane-hardware" aria-hidden="true">
-            <div class="rod"></div><div class="grip-head"></div>
-            <span class="wrist-bridge"></span><span class="wrist-socket"></span>
+            <div class="rod"></div>
+            <span class="wrist-socket"></span><span class="wrist-bridge"></span>
             <span class="finger finger-left"></span><span class="finger finger-right"></span>
           </div>
           <div class="crane-load" id="craneLoad"></div>
@@ -545,17 +555,23 @@
       const wait = ms => new Promise(resolve => setTimeout(resolve, reduceMotion.matches ? 0 : ms));
       const px = n => `${Math.round(n * 100) / 100}px`;
 
-      function setGrip(size, yawDegrees = 0, pitchDegrees = 0) {
-        const yaw = Math.abs(yawDegrees) * Math.PI / 180;
-        const pitch = Math.abs(pitchDegrees) * Math.PI / 180;
-        const projectedSpan = size.w * Math.cos(yaw) + size.d * Math.sin(yaw);
+      function setGrip(size, yawDegrees = 0, pitchDegrees = 0, rollDegrees = 0) {
+        const radians = Math.PI / 180;
+        const yaw = Math.abs(yawDegrees) * radians;
+        const pitch = Math.abs(pitchDegrees) * radians;
+        const roll = Math.abs(rollDegrees) * radians;
+        const projectedSpan = (size.w * Math.cos(yaw) + size.d * Math.sin(yaw)) * Math.cos(roll) + size.h * Math.sin(roll);
+        const projectedHeight = size.h * Math.cos(pitch) + size.d * Math.sin(pitch);
+        const cornerClearance = Math.sin(yaw) * size.w / 2 + Math.sin(pitch) * size.h / 2;
+        const fingerDepth = size.d / 2 + cornerClearance + 12;
         crane.style.setProperty('--grip-span', px(projectedSpan * 1.12));
         crane.style.setProperty('--finger-w', px(projectedSpan * .56));
-        crane.style.setProperty('--finger-h', px(12 + size.h * .9));
-        const cornerClearance = Math.sin(yaw) * size.w / 2 + Math.sin(pitch) * size.h / 2;
-        crane.style.setProperty('--finger-z', px(size.d / 2 + cornerClearance + 12));
+        crane.style.setProperty('--finger-h', px(12 + projectedHeight));
+        crane.style.setProperty('--finger-z', px(fingerDepth));
+        crane.style.setProperty('--socket-z', px(fingerDepth * .5));
         crane.style.setProperty('--grip-yaw', `${yawDegrees}deg`);
         crane.style.setProperty('--grip-pitch', `${pitchDegrees}deg`);
+        crane.style.setProperty('--grip-roll', `${rollDegrees}deg`);
       }
 
       function metrics() {
@@ -658,7 +674,7 @@
         el.style.setProperty('--rx', '-13deg');
         el.style.setProperty('--ry', '-6deg');
         el.style.setProperty('--rz', '0deg');
-        setGrip(activeSize, -6, -13);
+        setGrip(activeSize, -6, -13, 0);
         const targetTop = height * liftY / 100 - activeSize.h / 2;
         craneTo(width / 2, targetTop);
       }
@@ -674,12 +690,12 @@
         const pileTop = height * pose.y / 100 - baseH / 2;
         crane.classList.add('is-lifting');
         crane.classList.remove('fingers-open');
-        setGrip({ w: baseW, h: baseH, d: baseD }, parseFloat(pose.ry), parseFloat(pose.rx));
+        setGrip({ w: baseW, h: baseH, d: baseD }, parseFloat(pose.ry), parseFloat(pose.rx), parseFloat(pose.rz));
         craneTo(width * pose.x / 100, pileTop);
         resetContainer(el);
         await wait(950);
         crane.classList.add('fingers-open');
-        await wait(240);
+        await wait(400);
         el.classList.remove('is-selected');
         containerPile.appendChild(el);
         resetContainer(el);
@@ -707,14 +723,14 @@
           const targetPose = pilePosition(target, size);
           crane.classList.remove('is-lifting');
           crane.classList.add('fingers-open');
-          setGrip(size, parseFloat(targetPose.pose.ry), parseFloat(targetPose.pose.rx));
+          setGrip(size, parseFloat(targetPose.pose.ry), parseFloat(targetPose.pose.rx), parseFloat(targetPose.pose.rz));
           crane.style.setProperty('--drop', '48px');
           craneX(targetPose.x);
           status.textContent = `Crane moving to ${id} container.`;
-          await wait(750);
+          await wait(950);
 
           craneDropTo(targetPose.top);
-          await wait(560);
+          await wait(760);
           crane.classList.remove('fingers-open');
           await wait(420);
 
