@@ -144,17 +144,18 @@
       --drop: 48px;
       --grip-span: 220px;
       --finger-w: 110px;
-      --finger-h: 90px;
+      --finger-h: 72px;
       --finger-z: 56px;
       --grip-yaw: 0deg;
       --grip-pitch: 0deg;
       --grip-roll: 0deg;
       position: absolute; z-index: 240; top: 39px; left: 50%; width: 1px;
       height: 120px; transform: translateX(-50%); transform-style: preserve-3d;
-      transition: left .86s var(--ease-crane), --drop .72s var(--ease-crane);
+      transition: left .95s var(--ease-crane), --drop .82s var(--ease-crane);
       pointer-events: none;
     }
-    .crane.is-lifting { transition: left .95s var(--ease-crane), --drop .95s var(--ease-crane); }
+    .crane.is-lifting { transition: left 1.15s var(--ease-crane), --drop 1.15s var(--ease-crane); }
+    .crane.is-picking-up { transition: --drop .34s var(--ease-crane); }
     .hoist { position: absolute; inset: 0; transform-origin: top center; transform-style: preserve-3d; }
     .crane-hardware { position: absolute; inset: 0; z-index: 2; transform-style: preserve-3d; pointer-events: none; }
     .crane-load { position: absolute; inset: 0; transform-style: preserve-3d; pointer-events: none; }
@@ -165,7 +166,7 @@
       72% { transform: rotateZ(.65deg); }
       100% { transform: rotateZ(0deg); }
     }
-    .crane.is-lifting .hoist { animation: hoist-swing 1.05s cubic-bezier(.22,.75,.32,1) both; }
+    .crane.is-lifting .hoist { animation: hoist-swing 1.2s cubic-bezier(.22,.75,.32,1) both; }
     .carriage {
       position: absolute; top: 0; left: -34px; width: 68px; height: 34px;
       border: 1px solid rgba(142,165,191,.7); border-radius: 11px;
@@ -184,7 +185,7 @@
       border-radius: 8px; box-shadow: 0 2px 5px rgba(0,38,82,.2);
     }
     .wrist-socket {
-      position: absolute; top: calc(90px + var(--drop)); left: -22px; width: 44px; height: 18px; border-radius: 9px;
+      position: absolute; top: calc(90px + var(--drop)); left: -18px; width: 36px; height: 18px; border-radius: 9px;
       border: 1px solid rgba(144,165,188,.65);
       background: linear-gradient(180deg,#fff 0%,#f5f8fb 58%,#b7c6d5 100%);
       box-shadow: 0 2px 6px rgba(0,37,78,.24), inset 0 1px 2px #fff;
@@ -201,8 +202,9 @@
       transform: translateZ(var(--finger-z)) rotateX(var(--grip-pitch)) rotateY(var(--grip-yaw)) rotateZ(var(--grip-roll)) rotateZ(var(--finger-open-angle));
     }
     .finger::before, .finger::after { content: ""; position: absolute; background: linear-gradient(180deg,#fff 0%,#f5f8fb 60%,#b7c6d5 100%); box-shadow: 0 2px 5px rgba(0,37,78,.2); }
-    .finger::before { top: 0; width: 100%; height: 8px; border-radius: 5px; }
-    .finger::after { top: 0; width: 8px; height: var(--finger-h); border-radius: 5px; }
+    .finger::before { top: 0; width: 100%; height: 6px; border-radius: 4px; }
+    .finger::after { top: 0; width: 6px; height: 100%; border-radius: 4px; }
+    .crane.has-load .finger { height: calc(var(--finger-h) * .75); }
     .finger-left { right: 0; transform-origin: right 4px; }
     .finger-left::before { right: -2px; width: calc(100% + 2px); }
     .finger-left::after { left: 0; }
@@ -558,10 +560,10 @@
         const projectedSpan = (size.w * Math.cos(yaw) + size.d * Math.sin(yaw)) * Math.cos(roll) + size.h * Math.sin(roll);
         const projectedHeight = size.h * Math.cos(pitch) + size.d * Math.sin(pitch);
         const cornerClearance = Math.sin(yaw) * size.w / 2 + Math.sin(pitch) * size.h / 2;
-        const fingerDepth = size.d / 2 + cornerClearance + 12;
+        const fingerDepth = size.d / 2 + cornerClearance + 8;
         crane.style.setProperty('--grip-span', px(projectedSpan * 1.12));
         crane.style.setProperty('--finger-w', px(projectedSpan * .53));
-        crane.style.setProperty('--finger-h', px(8 + projectedHeight * .55));
+        crane.style.setProperty('--finger-h', px(6 + projectedHeight * .40));
         crane.style.setProperty('--finger-z', px(fingerDepth));
         crane.style.setProperty('--grip-yaw', `${yawDegrees}deg`);
         crane.style.setProperty('--grip-pitch', `${pitchDegrees}deg`);
@@ -690,6 +692,7 @@
         await wait(950);
         crane.classList.add('fingers-open');
         await wait(400);
+        crane.classList.remove('has-load');
         el.classList.remove('is-selected');
         containerPile.appendChild(el);
         resetContainer(el);
@@ -732,9 +735,14 @@
           target.classList.add('is-carrying');
           craneLoad.appendChild(target);
           activeId = id;
+          crane.classList.add('has-load', 'is-picking-up');
+          craneDropTo(targetPose.top - 20);
+          status.textContent = `${id} container cleared from the pile.`;
+          await wait(360);
+          crane.classList.remove('is-picking-up');
           activateContainer(target);
-          status.textContent = `${id} container lifted. Opening section.`;
-          await wait(950);
+          status.textContent = `${id} container travelling to the display position.`;
+          await wait(1250);
 
           target.classList.add('is-open');
           setContainerAccessibility(target, true);
