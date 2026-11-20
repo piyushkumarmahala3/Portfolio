@@ -179,12 +179,12 @@
     }
     .carriage::before { left: 11px; } .carriage::after { right: 11px; }
     .rod {
-      position: absolute; top: 32px; left: -3px; width: 6px; height: calc(var(--drop) + 45px);
+      position: absolute; top: 32px; left: -3px; width: 6px; height: calc(var(--drop) + 67px);
       background: linear-gradient(90deg,#94a9bd 0%,#fff 34%,#eaf3fb 63%,#8298ad 100%);
       border-radius: 8px; box-shadow: 0 2px 5px rgba(0,38,82,.2);
     }
     .wrist-socket {
-      position: absolute; top: calc(68px + var(--drop)); left: -22px; width: 44px; height: 18px; border-radius: 9px;
+      position: absolute; top: calc(90px + var(--drop)); left: -22px; width: 44px; height: 18px; border-radius: 9px;
       border: 1px solid rgba(144,165,188,.65);
       background: linear-gradient(180deg,#fff 0%,#f5f8fb 58%,#b7c6d5 100%);
       box-shadow: 0 2px 6px rgba(0,37,78,.24), inset 0 1px 2px #fff;
@@ -192,13 +192,13 @@
       transform: translateZ(var(--finger-z));
     }
     .finger {
-      position: absolute; top: calc(75px + var(--drop)); width: var(--finger-w); height: var(--finger-h);
+      position: absolute; top: calc(97px + var(--drop)); width: var(--finger-w); height: var(--finger-h);
       transition: width .95s var(--ease-crane), height .95s var(--ease-crane), --grip-yaw .95s var(--ease-crane), --grip-pitch .95s var(--ease-crane), --grip-roll .95s var(--ease-crane), --finger-z .95s var(--ease-crane), --finger-open-angle .38s var(--ease-spring);
       transform-origin: center 4px;
     }
     .finger-left, .finger-right {
       --finger-open-angle: 0deg;
-      transform: rotateX(var(--grip-pitch)) rotateY(var(--grip-yaw)) rotateZ(var(--grip-roll)) translateZ(var(--finger-z)) rotateZ(var(--finger-open-angle));
+      transform: translateZ(var(--finger-z)) rotateX(var(--grip-pitch)) rotateY(var(--grip-yaw)) rotateZ(var(--grip-roll)) rotateZ(var(--finger-open-angle));
     }
     .finger::before, .finger::after { content: ""; position: absolute; background: linear-gradient(180deg,#fff 0%,#f5f8fb 60%,#b7c6d5 100%); box-shadow: 0 2px 5px rgba(0,37,78,.2); }
     .finger::before { top: 0; width: 100%; height: 8px; border-radius: 5px; }
