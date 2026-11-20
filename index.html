@@ -188,7 +188,7 @@
       border: 1px solid rgba(144,165,188,.65); box-shadow: 0 2px 6px rgba(0,37,78,.24), inset 0 1px 2px #fff;
       transform: rotateX(var(--grip-pitch)) rotateY(var(--grip-yaw)) translateZ(var(--finger-z));
     }
-    .wrist-bridge { top: calc(77px + var(--drop)); left: -52px; width: 104px; height: 14px; border-radius: 7px; }
+    .wrist-bridge { top: calc(77px + var(--drop)); left: -38px; width: 76px; height: 14px; border-radius: 7px; }
     .wrist-socket { top: calc(74px + var(--drop)); left: -17px; width: 34px; height: 22px; border-radius: 8px; }
     .finger {
       position: absolute; top: calc(82px + var(--drop)); width: var(--finger-w); height: var(--finger-h);
@@ -204,8 +204,8 @@
     .finger-right { left: 0; transform-origin: left 4px; }
     .finger-right::before { left: -6px; width: calc(100% + 6px); }
     .finger-right::after { right: 0; }
-    .crane.fingers-open .finger-left { transform: rotateX(var(--grip-pitch)) rotateY(var(--grip-yaw)) translateZ(var(--finger-z)) rotateZ(-16deg); }
-    .crane.fingers-open .finger-right { transform: rotateX(var(--grip-pitch)) rotateY(var(--grip-yaw)) translateZ(var(--finger-z)) rotateZ(16deg); }
+    .crane.fingers-open .finger-left { transform: rotateX(var(--grip-pitch)) rotateY(var(--grip-yaw)) translateZ(var(--finger-z)) rotateZ(16deg); }
+    .crane.fingers-open .finger-right { transform: rotateX(var(--grip-pitch)) rotateY(var(--grip-yaw)) translateZ(var(--finger-z)) rotateZ(-16deg); }
 
     .container-pile { position: absolute; z-index: 10; inset: 0; transform-style: preserve-3d; }
     .container {
