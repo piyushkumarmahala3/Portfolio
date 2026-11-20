@@ -204,7 +204,7 @@
     .finger::before, .finger::after { content: ""; position: absolute; background: linear-gradient(180deg,#fff 0%,#f5f8fb 60%,#b7c6d5 100%); box-shadow: 0 2px 5px rgba(0,37,78,.2); }
     .finger::before { top: 0; width: 100%; height: 6px; border-radius: 4px; }
     .finger::after { top: 0; width: 6px; height: 100%; border-radius: 4px; }
-    .crane.has-load .finger { height: calc(var(--finger-h) * .75); }
+    .crane.has-load .finger { width: clamp(22px, calc(var(--finger-w) * .18), 42px); height: clamp(15px, calc(var(--finger-h) * .48), 34px); }
     .finger-left { right: 0; transform-origin: right 4px; }
     .finger-left::before { right: -2px; width: calc(100% + 2px); }
     .finger-left::after { left: 0; }
